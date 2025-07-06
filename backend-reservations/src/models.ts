@@ -154,28 +154,6 @@ export const reservationModel = {
     return parseInt(result.rows[0].count) === 0;
   },
 
-  async getByDateRange(
-    startDate: string,
-    endDate: string,
-    computerId?: number
-  ): Promise<Reservation[]> {
-    let query = `
-      SELECT * FROM reservations 
-      WHERE fecha >= $1 AND fecha <= $2
-    `;
-    const params: (string | number)[] = [startDate, endDate];
-
-    if (computerId) {
-      query += ` AND computer_id = $3`;
-      params.push(computerId);
-    }
-
-    query += ` ORDER BY fecha ASC, hora ASC`;
-
-    const result = await pool.query(query, params);
-    return result.rows;
-  },
-
   async getByStatus(status: string): Promise<Reservation[]> {
     const result = await pool.query(
       "SELECT * FROM reservations WHERE estado = $1 ORDER BY fecha DESC, hora DESC",

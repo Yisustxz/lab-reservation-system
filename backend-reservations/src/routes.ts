@@ -100,25 +100,6 @@ router.get("/status/:status", async (req, res) => {
   }
 });
 
-router.get("/date-range/:startDate/:endDate", async (req, res) => {
-  try {
-    const { startDate, endDate } = req.params;
-    const computerId = req.query.computerId
-      ? parseInt(req.query.computerId as string)
-      : undefined;
-
-    const reservations = await reservationModel.getByDateRange(
-      startDate,
-      endDate,
-      computerId
-    );
-    res.json(reservations);
-  } catch (error) {
-    console.error("Error getting reservations by date range:", error);
-    res.status(500).json({ error: "Error interno del servidor" });
-  }
-});
-
 router.post("/", async (req, res) => {
   try {
     const { error, value } = createReservationSchema.validate(req.body);
@@ -209,30 +190,6 @@ router.delete("/:id", async (req, res) => {
     res.json({ message: "Reservación eliminada exitosamente" });
   } catch (error) {
     console.error("Error deleting reservation:", error);
-    res.status(500).json({ error: "Error interno del servidor" });
-  }
-});
-
-router.post("/check-availability", async (req, res) => {
-  try {
-    const { computer_id, fecha, hora, exclude_reservation_id } = req.body;
-
-    if (!computer_id || !fecha || !hora) {
-      return res.status(400).json({
-        error: "computer_id, fecha y hora son requeridos",
-      });
-    }
-
-    const isAvailable = await reservationModel.checkAvailability(
-      computer_id,
-      fecha,
-      hora,
-      exclude_reservation_id
-    );
-
-    res.json({ available: isAvailable });
-  } catch (error) {
-    console.error("Error checking availability:", error);
     res.status(500).json({ error: "Error interno del servidor" });
   }
 });
