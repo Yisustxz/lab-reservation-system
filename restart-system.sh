@@ -25,4 +25,4 @@ kubectl apply -f k8s/backend-reservations-deployment.yaml
 kubectl apply -f k8s/frontend-deployment.yaml
 
 echo "✅ System restart completed successfully!"
-echo "🌐 You can access the application at: http://localhost:30001" 
+echo "🌐 You can access the application at: http://localhost:30001"
