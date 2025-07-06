@@ -3,11 +3,18 @@ kind: ConfigMap
 metadata:
   name: backend-config
 data:
+  PORT: "3001"
   DB_HOST: postgres
   DB_PORT: "5432"
   DB_USER: admin
   DB_NAME: mydb
-  NOTIFICATION_SERVICE_URL: http://notifications:3001
+  DB_PASS: admin
+  BACKEND_PERSONS_SERVICE_PORT: "3002"
+  BACKEND_COMPUTERS_SERVICE_PORT: "3004"
+  BACKEND_RESERVATIONS_SERVICE_PORT: "3003"
+  BACKEND_PERSONS_SERVICE_URL: "http://backend-persons:3002"
+  BACKEND_COMPUTERS_SERVICE_URL: "http://backend-computers:3004"
+  BACKEND_RESERVATIONS_SERVICE_URL: "http://backend-reservations:3003"
 
 ---
 apiVersion: v1
@@ -21,10 +28,38 @@ data:
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: notifications-config
+  name: backend-persons-config
 data:
-  PORT: "3001"
-
+  PORT: "3002"
+  DB_HOST: postgres
+  DB_PORT: "5432"
+  DB_USER: admin
+  DB_NAME: mydb
+  DB_PASS: admin
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: backend-computers-config
+data:
+  PORT: "3004"
+  DB_HOST: postgres
+  DB_PORT: "5432"
+  DB_USER: admin
+  DB_NAME: mydb
+  DB_PASS: admin
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: backend-reservations-config
+data:
+  PORT: "3003"
+  DB_HOST: postgres
+  DB_PORT: "5432"
+  DB_USER: admin
+  DB_NAME: mydb
+  DB_PASS: admin
 ---
 apiVersion: v1
 kind: Secret

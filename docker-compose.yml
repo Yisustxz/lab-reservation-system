@@ -1,0 +1,133 @@
+version: "3.8"
+
+services:
+  postgres:
+    image: postgres:13
+    container_name: postgres-lab
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: mydb
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - lab-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin -d mydb"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend-persons:
+    build:
+      context: ./backend-persons
+      dockerfile: Dockerfile
+    container_name: backend-persons
+    ports:
+      - "3002:3002"
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: admin
+      DB_PASS: admin
+      DB_NAME: mydb
+      PORT: 3002
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - lab-network
+    restart: unless-stopped
+
+  backend-computers:
+    build:
+      context: ./backend-computers
+      dockerfile: Dockerfile
+    container_name: backend-computers
+    ports:
+      - "3001:3001"
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: admin
+      DB_PASS: admin
+      DB_NAME: mydb
+      PORT: 3001
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - lab-network
+    restart: unless-stopped
+
+  backend-reservations:
+    build:
+      context: ./backend-reservations
+      dockerfile: Dockerfile
+    container_name: backend-reservations
+    ports:
+      - "3003:3003"
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: admin
+      DB_PASS: admin
+      DB_NAME: mydb
+      PORT: 3003
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - lab-network
+    restart: unless-stopped
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: backend-main
+    ports:
+      - "3000:3000"
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: admin
+      DB_PASS: admin
+      DB_NAME: mydb
+      PORT: 3000
+      DEPLOYMENT_TYPE: docker
+      BACKEND_PERSONS_SERVICE_URL: http://backend-persons:3002
+      BACKEND_COMPUTERS_SERVICE_URL: http://backend-computers:3001
+      BACKEND_RESERVATIONS_SERVICE_URL: http://backend-reservations:3003
+    depends_on:
+      - postgres
+      - backend-persons
+      - backend-computers
+      - backend-reservations
+    networks:
+      - lab-network
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: frontend-app
+    ports:
+      - "3004:3000"
+    environment:
+      REACT_APP_API_URL: http://localhost:3000
+    depends_on:
+      - backend
+    networks:
+      - lab-network
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+
+networks:
+  lab-network:
+    driver: bridge

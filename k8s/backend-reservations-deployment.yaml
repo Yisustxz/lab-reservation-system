@@ -1,23 +1,23 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: notifications
+  name: backend-reservations
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: notifications
+      app: backend-reservations
   template:
     metadata:
       labels:
-        app: notifications
+        app: backend-reservations
     spec:
       containers:
-        - name: notifications
-          image: notifications:local
+        - name: backend-reservations
+          image: backend-reservations:local
           imagePullPolicy: IfNotPresent
           ports:
-            - containerPort: 3001
+            - containerPort: 3003
           resources:
             requests:
               memory: "128Mi"
@@ -27,18 +27,18 @@ spec:
               cpu: "500m"
           envFrom:
             - configMapRef:
-                name: notifications-config
+                name: backend-reservations-config
 
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: notifications
+  name: backend-reservations
 spec:
   type: NodePort
   selector:
-    app: notifications
+    app: backend-reservations
   ports:
-    - port: 3001
-      targetPort: 3001
-      nodePort: 30002
+    - port: 3003
+      targetPort: 3003
+      nodePort: 30003
