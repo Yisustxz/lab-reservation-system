@@ -1,30 +1,47 @@
 import { Injectable } from '@nestjs/common';
-import { DeploymentHelper, ServicesConfig } from './helpers';
 
 @Injectable()
 export class AppService {
   getHello(): string {
-    return 'Hello World! holaa';
+    return 'Lab Reservation System Backend is running!';
   }
 
-  async getSystemHealth() {
-    const deploymentType = DeploymentHelper.getDeploymentType();
-    const services = ServicesConfig.getAllServices();
+  getSystemHealth() {
+    return {
+      status: 'OK',
+      timestamp: new Date().toISOString(),
+      service: 'backend-main',
+      environment: process.env.NODE_ENV,
+      port: process.env.PORT,
+    };
+  }
 
-    const microservices = services.map((service) => ({
-      name: service.name,
-      url: DeploymentHelper.getMicroserviceHealthUrl(service.serviceName),
-      port: service.port,
-      description: service.description,
-    }));
+  async getAllMicroservicesHealth() {
+    const services = [
+      {
+        name: 'backend-persons',
+        url: process.env.BACKEND_PERSONS_SERVICE_URL!,
+        port: process.env.BACKEND_PERSONS_SERVICE_PORT!,
+      },
+      {
+        name: 'backend-computers',
+        url: process.env.BACKEND_COMPUTERS_SERVICE_URL!,
+        port: process.env.BACKEND_COMPUTERS_SERVICE_PORT!,
+      },
+      {
+        name: 'backend-reservations',
+        url: process.env.BACKEND_RESERVATIONS_SERVICE_URL!,
+        port: process.env.BACKEND_RESERVATIONS_SERVICE_PORT!,
+      },
+    ];
 
     const results = await Promise.allSettled(
-      microservices.map(async (service) => {
+      services.map(async (service) => {
         try {
           const controller = new AbortController();
           const timeoutId = setTimeout(() => controller.abort(), 5000);
 
-          const response = await fetch(service.url, {
+          const response = await fetch(`${service.url}/health`, {
             method: 'GET',
             headers: { 'Content-Type': 'application/json' },
             signal: controller.signal,
@@ -40,7 +57,6 @@ export class AppService {
               details: `HTTP ${response.status}: ${response.statusText}`,
               timestamp: new Date().toISOString(),
               url: service.url,
-              description: service.description,
             };
           }
 
@@ -52,10 +68,11 @@ export class AppService {
             details: data.details || 'Service is healthy',
             timestamp: data.timestamp || new Date().toISOString(),
             url: service.url,
-            description: service.description,
           };
         } catch (error) {
           let errorMessage = 'Connection failed';
+          let status = 'ERROR';
+
           if (error instanceof Error) {
             if (error.name === 'AbortError') {
               errorMessage = 'Request timeout (5s)';
@@ -63,6 +80,12 @@ export class AppService {
               errorMessage = 'Connection refused - service may be down';
             } else if (error.message.includes('ENOTFOUND')) {
               errorMessage = 'Service not found - DNS resolution failed';
+            } else if (
+              error.message.includes('database') ||
+              error.message.includes('DB')
+            ) {
+              errorMessage = error.message;
+              status = 'BDDERROR';
             } else {
               errorMessage = error.message;
             }
@@ -70,12 +93,11 @@ export class AppService {
 
           return {
             name: service.name,
-            status: 'ERROR',
+            status: status,
             port: service.port,
             details: errorMessage,
             timestamp: new Date().toISOString(),
             url: service.url,
-            description: service.description,
           };
         }
       }),
@@ -86,13 +108,12 @@ export class AppService {
         return result.value;
       } else {
         return {
-          name: microservices[index].name,
+          name: services[index].name,
           status: 'ERROR',
-          port: microservices[index].port,
+          port: services[index].port,
           details: 'Promise rejected unexpectedly',
           timestamp: new Date().toISOString(),
-          url: microservices[index].url,
-          description: microservices[index].description,
+          url: services[index].url,
         };
       }
     });
@@ -114,7 +135,6 @@ export class AppService {
       overall: {
         status: overallStatus,
         timestamp: new Date().toISOString(),
-        environment: deploymentType,
         total_services: serviceResults.length,
         healthy_services: healthyServices.length,
         database_error_services: bdErrorServices.length,
