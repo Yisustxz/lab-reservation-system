@@ -33,11 +33,3 @@ kubectl apply -f k8s/frontend-deployment.yaml
 kubectl get pods
 kubectl get svc
 ```
-
-## Acceso a los Servicios
-
-- **Frontend**: http://localhost:3004
-- **Backend Principal**: http://localhost:3001
-- **Backend-persons**: http://localhost:3002
-- **Backend-computers**: http://localhost:3001
-- **Backend-reservations**: http://localhost:3003
