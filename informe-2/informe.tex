@@ -1,0 +1,565 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+\usepackage{graphicx}
+\usepackage{geometry}
+\usepackage{fancyhdr}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{titlesec}
+\usepackage{tocloft}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\usepackage{booktabs}
+\usepackage{float}
+
+\geometry{left=2.5cm,right=2.5cm,top=3cm,bottom=3cm}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[R]{Universidad Católica Andrés Bello}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0.4pt}
+
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{gray!10},
+    commentstyle=\color{green!60!black},
+    keywordstyle=\color{blue},
+    numberstyle=\tiny\color{gray},
+    stringstyle=\color{red!70!black},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,
+    breaklines=true,
+    captionpos=b,
+    keepspaces=true,
+    numbers=left,
+    numbersep=5pt,
+    showspaces=false,
+    showstringspaces=false,
+    showtabs=false,
+    tabsize=2
+}
+
+\lstset{style=mystyle}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,
+    urlcolor=cyan,
+    pdftitle={Sistema de Reservas de Laboratorio},
+    pdfpagemode=FullScreen,
+}
+
+\title{Sistema de Reservas de Laboratorio con Arquitectura de Microservicios}
+\author{Estudiante de Computación en la Nube}
+\date{Diciembre 2024}
+
+\begin{document}
+
+\begin{titlepage}
+    \centering
+    \includegraphics[width=0.6\textwidth]{images/Logo_UCAB_3.png}\\[1cm]
+    
+    {\LARGE\textbf{Universidad Católica Andrés Bello}}\\[0.5cm]
+    {\Large Facultad de Ingeniería}\\[0.3cm]
+    {\large Escuela de Ingeniería Informática}\\[0.3cm]
+    {\large Periodo Académico 2024-2025}\\[2cm]
+    
+    {\huge\textbf{Sistema de Reservas de Laboratorio con Arquitectura de Microservicios}}\\[2cm]
+    
+    {\large\textbf{Asignatura:} Computación en la Nube (CEN)}\\[0.5cm]
+    {\large\textbf{Profesor:} Nombre del Profesor}\\[0.5cm]
+    {\large\textbf{Estudiante:} Nombre del Estudiante}\\[2cm]
+    
+    \vfill
+    
+    {\large Diciembre 2024}
+\end{titlepage}
+
+\newpage
+\tableofcontents
+\newpage
+
+\section{Introducción}
+
+El Sistema de Reservas de Laboratorio es una aplicación web desarrollada con arquitectura de microservicios que permite a los estudiantes y profesores gestionar las reservas de computadoras en los laboratorios de la universidad. Este sistema ha sido diseñado siguiendo los principios de la computación en la nube y las mejores prácticas de desarrollo de software moderno.
+
+El proyecto implementa una arquitectura distribuida basada en microservicios, donde cada servicio tiene una responsabilidad específica y bien definida. La comunicación entre servicios se realiza a través de APIs REST, y todo el sistema está containerizado usando Docker y orquestado con Kubernetes.
+
+\subsection{Objetivos del Proyecto}
+
+\begin{itemize}
+    \item \textbf{Objetivo Principal}: Desarrollar un sistema completo de reservas de laboratorio utilizando arquitectura de microservicios.
+    \item \textbf{Objetivos Específicos}:
+    \begin{itemize}
+        \item Implementar una arquitectura de microservicios con separación de responsabilidades
+        \item Utilizar tecnologías de containerización con Docker
+        \item Implementar orquestación con Kubernetes
+        \item Desarrollar APIs REST bien documentadas
+        \item Garantizar la persistencia de datos con PostgreSQL
+        \item Implementar un API Gateway para la gestión centralizada de peticiones
+    \end{itemize}
+\end{itemize}
+
+\subsection{Tecnologías Utilizadas}
+
+\begin{itemize}
+    \item \textbf{Backend}: Node.js con Express.js
+    \item \textbf{Base de Datos}: PostgreSQL
+    \item \textbf{Containerización}: Docker y Docker Compose
+    \item \textbf{Orquestación}: Kubernetes
+    \item \textbf{API Gateway}: Node.js con Express.js
+    \item \textbf{Documentación}: Postman Collections
+    \item \textbf{Control de Versiones}: Git
+\end{itemize}
+
+\section{Análisis del Problema}
+
+\subsection{Problemática Identificada}
+
+La gestión manual de reservas de laboratorios presenta varios desafíos:
+
+\begin{enumerate}
+    \item \textbf{Falta de Centralización}: No existe un sistema unificado para gestionar las reservas de todos los laboratorios.
+    \item \textbf{Conflictos de Horarios}: Es común que se produzcan dobles reservas o conflictos de horarios.
+    \item \textbf{Información Desactualizada}: La información sobre disponibilidad de computadoras no está actualizada en tiempo real.
+    \item \textbf{Proceso Manual}: El proceso de reserva requiere intervención manual, lo que genera demoras.
+    \item \textbf{Falta de Trazabilidad}: No existe un registro histórico de las reservas realizadas.
+\end{enumerate}
+
+\subsection{Justificación de la Arquitectura de Microservicios}
+
+La elección de una arquitectura de microservicios se justifica por:
+
+\begin{enumerate}
+    \item \textbf{Separación de Responsabilidades}: Cada servicio maneja un dominio específico
+    \item \textbf{Escalabilidad Independiente}: Cada servicio puede escalarse según sus necesidades
+    \item \textbf{Desarrollo Paralelo}: Equipos pueden trabajar independientemente en cada servicio
+    \item \textbf{Tolerancia a Fallos}: El fallo de un servicio no afecta a todo el sistema
+    \item \textbf{Facilidad de Mantenimiento}: Cambios en un servicio no impactan a otros
+\end{enumerate}
+
+\section{Diseño de la Solución}
+
+\subsection{Arquitectura del Sistema}
+
+El sistema está compuesto por los siguientes microservicios:
+
+\begin{enumerate}
+    \item \textbf{API Gateway - Backend (Puerto 3001)}:
+    \begin{itemize}
+        \item Punto de entrada único para todas las peticiones
+        \item Enrutamiento a los microservicios correspondientes
+        \item Manejo de CORS y políticas de seguridad
+        \item Expuesto externamente en NodePort 30001
+    \end{itemize}
+    
+    \item \textbf{Backend-Persons (Puerto 3002)}:
+    \begin{itemize}
+        \item Gestión de usuarios y perfiles
+        \item Validación de datos de usuarios
+        \item Operaciones CRUD para usuarios
+    \end{itemize}
+    
+    \item \textbf{Backend-Computers (Puerto 3004)}:
+    \begin{itemize}
+        \item Gestión de laboratorios y computadoras
+        \item Control de disponibilidad de equipos
+        \item Relaciones entre laboratorios y computadoras
+    \end{itemize}
+    
+    \item \textbf{Backend-Reservations (Puerto 3003)}:
+    \begin{itemize}
+        \item Gestión del sistema de reservas
+        \item Validación de disponibilidad
+        \item Control de estados de reserva
+    \end{itemize}
+\end{enumerate}
+
+\subsection{Diagrama de Arquitectura}
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[node distance=2cm, auto]
+    % API Gateway
+    \node [draw, rectangle, minimum width=3cm, minimum height=1.5cm, text centered] (gateway) {API Gateway\\(Puerto 3001)\\NodePort 30001};
+    
+    % Microservicios
+    \node [draw, rectangle, minimum width=2.5cm, minimum height=1cm, below left=2cm and -2cm of gateway] (persons) {Backend-\\Persons\\(3002)};
+    \node [draw, rectangle, minimum width=2.5cm, minimum height=1cm, below=2cm of gateway] (computers) {Backend-\\Computers\\(3004)};
+    \node [draw, rectangle, minimum width=2.5cm, minimum height=1cm, below right=2cm and -2cm of gateway] (reservations) {Backend-\\Reservations\\(3003)};
+    
+    % Base de datos
+    \node [draw, rectangle, minimum width=3cm, minimum height=1.5cm, below=3cm of computers] (db) {PostgreSQL\\(Puerto 5432)\\Base de Datos\\Compartida};
+    
+    % Conexiones
+    \draw [->] (gateway) -- (persons);
+    \draw [->] (gateway) -- (computers);
+    \draw [->] (gateway) -- (reservations);
+    
+    \draw [->] (persons) -- (db);
+    \draw [->] (computers) -- (db);
+    \draw [->] (reservations) -- (db);
+\end{tikzpicture}
+\caption{Arquitectura del Sistema de Microservicios}
+\end{figure}
+
+\subsection{Modelo de Datos}
+
+\subsubsection{Entidad User (Backend-Persons)}
+
+\begin{lstlisting}[language=JavaScript, caption=Modelo de Usuario]
+{
+  id: number,
+  nombre: string,
+  email: string,
+  password: string,
+  cedula: string,
+  created_at: timestamp,
+  updated_at: timestamp
+}
+\end{lstlisting}
+
+\subsubsection{Entidad Lab (Backend-Computers)}
+
+\begin{lstlisting}[language=JavaScript, caption=Modelo de Laboratorio]
+{
+  id: number,
+  nombre: string,
+  created_at: timestamp,
+  updated_at: timestamp
+}
+\end{lstlisting}
+
+\subsubsection{Entidad Computer (Backend-Computers)}
+
+\begin{lstlisting}[language=JavaScript, caption=Modelo de Computadora]
+{
+  id: number,
+  nombre: string,
+  lab_id: number,
+  created_at: timestamp,
+  updated_at: timestamp
+}
+\end{lstlisting}
+
+\subsubsection{Entidad Reservation (Backend-Reservations)}
+
+\begin{lstlisting}[language=JavaScript, caption=Modelo de Reserva]
+{
+  id: number,
+  user_id: number,
+  computer_id: number,
+  fecha: date,
+  hora: time,
+  duracion: number,
+  estado: string,
+  created_at: timestamp,
+  updated_at: timestamp
+}
+\end{lstlisting}
+
+\subsection{Endpoints del Sistema}
+
+\subsubsection{API Gateway Endpoints}
+
+\textbf{Users Management:}
+\begin{itemize}
+    \item \texttt{GET /api/users} - Obtener todos los usuarios
+    \item \texttt{GET /api/users/:id} - Obtener usuario por ID
+    \item \texttt{POST /api/users} - Crear nuevo usuario
+    \item \texttt{PUT /api/users/:id} - Actualizar usuario
+    \item \texttt{DELETE /api/users/:id} - Eliminar usuario
+\end{itemize}
+
+\textbf{Labs Management:}
+\begin{itemize}
+    \item \texttt{GET /api/labs} - Obtener todos los laboratorios
+    \item \texttt{GET /api/labs/:id} - Obtener laboratorio por ID
+    \item \texttt{POST /api/labs} - Crear nuevo laboratorio
+    \item \texttt{PUT /api/labs/:id} - Actualizar laboratorio
+    \item \texttt{DELETE /api/labs/:id} - Eliminar laboratorio
+    \item \texttt{GET /api/labs/:labId/computers} - Obtener computadoras por laboratorio
+\end{itemize}
+
+\textbf{Computers Management:}
+\begin{itemize}
+    \item \texttt{GET /api/computers} - Obtener todas las computadoras
+    \item \texttt{GET /api/computers/:id} - Obtener computadora por ID
+    \item \texttt{POST /api/computers} - Crear nueva computadora
+    \item \texttt{PUT /api/computers/:id} - Actualizar computadora
+    \item \texttt{DELETE /api/computers/:id} - Eliminar computadora
+\end{itemize}
+
+\textbf{Reservations Management:}
+\begin{itemize}
+    \item \texttt{GET /api/reservations} - Obtener todas las reservas
+    \item \texttt{GET /api/reservations/details} - Obtener reservas con detalles
+    \item \texttt{GET /api/reservations/:id} - Obtener reserva por ID
+    \item \texttt{POST /api/reservations} - Crear nueva reserva
+    \item \texttt{PUT /api/reservations/:id} - Actualizar reserva
+    \item \texttt{DELETE /api/reservations/:id} - Eliminar reserva
+    \item \texttt{GET /api/reservations/user/:userId} - Obtener reservas por usuario
+    \item \texttt{GET /api/reservations/computer/:computerId} - Obtener reservas por computadora
+    \item \texttt{GET /api/reservations/status/:status} - Obtener reservas por estado
+\end{itemize}
+
+\section{Implementación}
+
+\subsection{Estructura del Proyecto}
+
+\begin{lstlisting}[caption=Estructura de Directorios]
+lab-reservation-system/
+├── backend/                    # API Gateway
+│   ├── src/
+│   │   ├── computers.controller.ts
+│   │   ├── reservations.controller.ts
+│   │   ├── users.controller.ts
+│   │   └── server.ts
+│   ├── package.json
+│   └── Dockerfile
+├── backend-persons/           # Microservicio de Usuarios
+│   ├── src/
+│   │   ├── routes.ts
+│   │   ├── types.ts
+│   │   ├── models.ts
+│   │   └── server.ts
+│   ├── package.json
+│   └── Dockerfile
+├── backend-computers/         # Microservicio de Computadoras
+│   ├── src/
+│   │   ├── routes.ts
+│   │   ├── types.ts
+│   │   ├── models.ts
+│   │   └── server.ts
+│   ├── package.json
+│   └── Dockerfile
+├── backend-reservations/      # Microservicio de Reservas
+│   ├── src/
+│   │   ├── routes.ts
+│   │   ├── types.ts
+│   │   ├── models.ts
+│   │   └── server.ts
+│   ├── package.json
+│   └── Dockerfile
+├── docker-compose.yml
+├── k8s/                       # Configuraciones Kubernetes
+│   ├── configmaps.yaml
+│   ├── deployments.yaml
+│   ├── services.yaml
+│   └── postgres.yaml
+├── postman-collections.json
+└── endpoints.md
+\end{lstlisting}
+
+\subsection{Configuración de Kubernetes}
+
+\subsubsection{ConfigMaps}
+
+\begin{lstlisting}[language=yaml, caption=Configuración de ConfigMaps]
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: backend-config
+data:
+  PORT: "3001"
+  DB_HOST: postgres
+  DB_PORT: "5432"
+  DB_USER: admin
+  DB_NAME: mydb
+  DB_PASS: admin
+  BACKEND_PERSONS_SERVICE_PORT: "3002"
+  BACKEND_COMPUTERS_SERVICE_PORT: "3004"
+  BACKEND_RESERVATIONS_SERVICE_PORT: "3003"
+  BACKEND_PERSONS_SERVICE_URL: "http://backend-persons:3002"
+  BACKEND_COMPUTERS_SERVICE_URL: "http://backend-computers:3004"
+  BACKEND_RESERVATIONS_SERVICE_URL: "http://backend-reservations:3003"
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: backend-persons-config
+data:
+  PORT: "3002"
+  DB_HOST: postgres
+  DB_PORT: "5432"
+  DB_USER: admin
+  DB_NAME: mydb
+  DB_PASS: admin
+\end{lstlisting}
+
+\subsubsection{Implementación de Microservicios}
+
+\textbf{Backend-Persons (Gestión de Usuarios):}
+
+\begin{lstlisting}[language=TypeScript, caption=Interfaces de Usuario]
+interface User {
+  id: number;
+  nombre: string;
+  email: string;
+  password: string;
+  cedula: string;
+  created_at: Date;
+  updated_at: Date;
+}
+
+interface CreateUserRequest {
+  nombre: string;
+  email: string;
+  password: string;
+  cedula: string;
+}
+\end{lstlisting}
+
+\textbf{Backend-Computers (Gestión de Laboratorios y Computadoras):}
+
+\begin{lstlisting}[language=TypeScript, caption=Interfaces de Laboratorio y Computadora]
+interface Lab {
+  id: number;
+  nombre: string;
+  created_at: Date;
+  updated_at: Date;
+}
+
+interface Computer {
+  id: number;
+  nombre: string;
+  lab_id: number;
+  created_at: Date;
+  updated_at: Date;
+}
+\end{lstlisting}
+
+\textbf{Backend-Reservations (Gestión de Reservas):}
+
+\begin{lstlisting}[language=TypeScript, caption=Interface de Reserva]
+interface Reservation {
+  id: number;
+  user_id: number;
+  computer_id: number;
+  fecha: string;
+  hora: string;
+  duracion: number;
+  estado: "pendiente" | "confirmada" | "cancelada";
+  created_at: Date;
+  updated_at: Date;
+}
+\end{lstlisting}
+
+\subsection{Configuración de Docker}
+
+\subsubsection{Docker Compose}
+
+\begin{lstlisting}[language=yaml, caption=Configuración Docker Compose]
+version: '3.8'
+
+services:
+  api-gateway:
+    build: ./backend
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=production
+      - BACKEND_PERSONS_URL=http://backend-persons:3002
+      - BACKEND_COMPUTERS_URL=http://backend-computers:3004
+      - BACKEND_RESERVATIONS_URL=http://backend-reservations:3003
+    depends_on:
+      - backend-persons
+      - backend-computers
+      - backend-reservations
+
+  backend-persons:
+    build: ./backend-persons
+    ports:
+      - "3002:3002"
+    environment:
+      - NODE_ENV=production
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_NAME=mydb
+      - DB_USER=admin
+      - DB_PASSWORD=admin
+    depends_on:
+      - postgres
+
+  backend-computers:
+    build: ./backend-computers
+    ports:
+      - "3004:3004"
+    environment:
+      - NODE_ENV=production
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_NAME=mydb
+      - DB_USER=admin
+      - DB_PASSWORD=admin
+    depends_on:
+      - postgres
+
+  backend-reservations:
+    build: ./backend-reservations
+    ports:
+      - "3003:3003"
+    environment:
+      - NODE_ENV=production
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_NAME=mydb
+      - DB_USER=admin
+      - DB_PASSWORD=admin
+    depends_on:
+      - postgres
+
+  postgres:
+    image: postgres:15
+    environment:
+      - POSTGRES_DB=mydb
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=admin
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
+\end{lstlisting}
+
+\subsection{Patrones de Diseño Implementados}
+
+\begin{enumerate}
+    \item \textbf{API Gateway Pattern}: Centralización del punto de entrada
+    \item \textbf{Shared Database}: Base de datos PostgreSQL compartida entre servicios
+    \item \textbf{Health Check}: Monitoreo de estado de servicios
+    \item \textbf{Service Communication}: Comunicación HTTP/REST entre servicios
+\end{enumerate}
+
+\subsection{Estrategia de Comunicación}
+
+\begin{itemize}
+    \item \textbf{Comunicación Síncrona}: HTTP/REST para operaciones en tiempo real
+    \item \textbf{Formato de Datos}: JSON para todas las comunicaciones
+    \item \textbf{Validación}: Esquemas Joi para validación de datos de entrada
+    \item \textbf{Manejo de Errores}: Códigos HTTP estándar y mensajes descriptivos
+\end{itemize}
+
+\section{Pruebas – Ejecución}
+
+\textit{Esta sección será completada con los resultados de las pruebas realizadas.}
+
+\section{Conclusiones}
+
+El desarrollo del Sistema de Reservas de Laboratorio con arquitectura de microservicios ha demostrado la viabilidad de implementar sistemas distribuidos utilizando tecnologías modernas como Docker y Kubernetes. La separación de responsabilidades en diferentes servicios permite una mejor organización del código y facilita el mantenimiento futuro del sistema.
+
+La implementación de un API Gateway centralizado simplifica la gestión de las peticiones y proporciona un punto único de entrada para todas las operaciones del sistema. La utilización de PostgreSQL como base de datos compartida garantiza la consistencia de los datos entre los diferentes microservicios, aunque presenta desafíos en términos de acoplamiento que podrían ser abordados en futuras iteraciones del proyecto.
+
+La experiencia obtenida en el desarrollo de este sistema proporciona una base sólida para la implementación de arquitecturas de microservicios más complejas y distribuidas en el futuro.
+
+\section{Bibliografía}
+
+No hay bibliografías.
+
+\end{document} 
