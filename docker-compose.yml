@@ -47,7 +47,7 @@ services:
       dockerfile: Dockerfile
     container_name: backend-computers
     ports:
-      - "3001:3001"
+      - "3004:3004"
     environment:
       DB_HOST: postgres
       DB_PORT: 5432
@@ -89,14 +89,14 @@ services:
       dockerfile: Dockerfile
     container_name: backend-main
     ports:
-      - "3000:3000"
+      - "3001:3001"
     environment:
       DB_HOST: postgres
       DB_PORT: 5432
       DB_USER: admin
       DB_PASS: admin
       DB_NAME: mydb
-      PORT: 3000
+      PORT: 3001
       DEPLOYMENT_TYPE: docker
       BACKEND_PERSONS_SERVICE_URL: http://backend-persons:3002
       BACKEND_COMPUTERS_SERVICE_URL: http://backend-computers:3001
@@ -116,9 +116,9 @@ services:
       dockerfile: Dockerfile
     container_name: frontend-app
     ports:
-      - "3004:3000"
+      - "3005:80"
     environment:
-      REACT_APP_API_URL: http://localhost:3000
+      VITE_BACKEND_URL: http://localhost:3001
     depends_on:
       - backend
     networks:

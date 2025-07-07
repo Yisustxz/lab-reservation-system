@@ -6,11 +6,11 @@ Sistema de reservas de laboratorio con arquitectura de microservicios.
 
 ```bash
 # Construye el frontend
-docker build -t frontend:local ./frontend
 docker build -t backend:local ./backend
 docker build -t backend-persons:local ./backend-persons
 docker build -t backend-computers:local ./backend-computers
 docker build -t backend-reservations:local ./backend-reservations
+docker build -t frontend:local ./frontend
 ```
 
 ## Despliegue en Kubernetes

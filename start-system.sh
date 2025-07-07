@@ -5,11 +5,11 @@ set -e
 echo "🚀 Starting Lab Reservation System deployment..."
 
 echo "📦 Building Docker images..."
-docker build -t frontend:local ./frontend
 docker build -t backend:local ./backend
 docker build -t backend-persons:local ./backend-persons
 docker build -t backend-computers:local ./backend-computers
 docker build -t backend-reservations:local ./backend-reservations
+docker build -t frontend:local ./frontend
 
 echo "⚙️  Applying Kubernetes configurations..."
 kubectl apply -f k8s/config.yaml

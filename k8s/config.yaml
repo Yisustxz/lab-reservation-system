@@ -22,7 +22,7 @@ kind: ConfigMap
 metadata:
   name: frontend-config
 data:
-  VITE_BACKEND_URL: http://backend
+  VITE_BACKEND_URL: http://localhost:30001
 
 ---
 apiVersion: v1

@@ -17,7 +17,7 @@ spec:
           image: frontend:local
           imagePullPolicy: IfNotPresent
           ports:
-            - containerPort: 3005
+            - containerPort: 80
           resources:
             requests:
               cpu: "100m"
@@ -38,6 +38,6 @@ spec:
   selector:
     app: frontend
   ports:
-    - port: 3005
-      targetPort: 3005
+    - port: 80
+      targetPort: 80
       nodePort: 30005
