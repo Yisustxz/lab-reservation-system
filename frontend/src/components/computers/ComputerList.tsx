@@ -57,7 +57,6 @@ export default function ComputerList() {
           + Nueva Computadora
         </button>
       </div>
-
       {showForm && (
         <ComputerForm
           computer={editingComputer}
