@@ -67,7 +67,18 @@ export default function UserForm({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validate()) return;
-    await onSubmit(formData);
+
+    const dataToSubmit = {
+      nombre: formData.nombre,
+      email: formData.email,
+      cedula: formData.cedula,
+      rol: formData.rol,
+      ...((!user || formData.password?.trim()) && {
+        password: formData.password,
+      }),
+    };
+
+    await onSubmit(dataToSubmit);
   };
 
   return (

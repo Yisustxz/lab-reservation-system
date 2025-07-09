@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 import {
   createLab,
   deleteLab,
@@ -6,6 +7,7 @@ import {
   updateLab,
 } from "../../api/labServices";
 import type { Lab } from "../../types/models";
+import { extractErrorMessage } from "../../utils/errorHandler";
 import LabForm from "./LabForm";
 import LabItem from "./LabItem";
 
@@ -28,6 +30,10 @@ export default function LabList() {
       try {
         const data = await fetchLabs();
         setLabs(data);
+      } catch (error) {
+        toast.error(
+          `Error al cargar laboratorios: ${extractErrorMessage(error)}`
+        );
       } finally {
         setLoading(false);
       }
@@ -40,19 +46,36 @@ export default function LabList() {
       if (editingLab) {
         const updatedLab = await updateLab(editingLab.id, labData);
         setLabs(labs.map(l => (l.id === editingLab.id ? updatedLab : l)));
+        toast.success("Laboratorio actualizado exitosamente");
       } else {
         const newLab = await createLab(labData);
         setLabs([...labs, newLab]);
+        toast.success("Laboratorio creado exitosamente");
       }
       setShowForm(false);
     } catch (error) {
-      console.error("Error al guardar el laboratorio:", error);
+      toast.error(
+        `${
+          editingLab
+            ? "Error al actualizar laboratorio"
+            : "Error al crear laboratorio"
+        }: ${extractErrorMessage(error)}`
+      );
     }
   };
 
   const handleDelete = async (id: number) => {
-    await deleteLab(id);
-    setLabs(labs.filter(lab => lab.id !== id));
+    if (window.confirm("¿Estás seguro de eliminar este laboratorio?")) {
+      try {
+        await deleteLab(id);
+        setLabs(labs.filter(lab => lab.id !== id));
+        toast.success("Laboratorio eliminado exitosamente");
+      } catch (error) {
+        toast.error(
+          `Error al eliminar laboratorio: ${extractErrorMessage(error)}`
+        );
+      }
+    }
   };
 
   return (

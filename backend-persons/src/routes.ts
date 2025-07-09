@@ -1,18 +1,18 @@
-import { Router, Request, Response } from 'express';
-import { createUserSchema, updateUserSchema } from './types';
-import { 
-  findAllUsers, 
-  findUserById, 
-  findUserByEmail, 
-  findUserByCedula, 
-  createUser, 
-  updateUser, 
-  deleteUser 
-} from './userModel';
+import { Request, Response, Router } from "express";
+import { createUserSchema, updateUserSchema } from "./types";
+import {
+  createUser,
+  deleteUser,
+  findAllUsers,
+  findUserByCedula,
+  findUserByEmail,
+  findUserById,
+  updateUser,
+} from "./userModel";
 
 const router = Router();
 
-router.get('/', async (req: Request, res: Response) => {
+router.get("/", async (req: Request, res: Response) => {
   try {
     const users = await findAllUsers();
     const usersResponse = users.map(user => ({
@@ -22,41 +22,41 @@ router.get('/', async (req: Request, res: Response) => {
       rol: user.rol,
       cedula: user.cedula,
       created_at: user.created_at,
-      updated_at: user.updated_at
+      updated_at: user.updated_at,
     }));
 
     res.json({
       success: true,
       data: usersResponse,
-      message: 'Users retrieved successfully'
+      message: "Users retrieved successfully",
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Error retrieving users',
-      error: error instanceof Error ? error.message : 'Unknown error'
+      message: "Error retrieving users",
+      error: error instanceof Error ? error.message : "Unknown error",
     });
   }
 });
 
-router.get('/:id', async (req: Request, res: Response) => {
+router.get("/:id", async (req: Request, res: Response) => {
   try {
     const id = parseInt(req.params.id);
-    
+
     if (isNaN(id)) {
       res.status(400).json({
         success: false,
-        message: 'Invalid user ID'
+        message: "Invalid user ID",
       });
       return;
     }
 
     const user = await findUserById(id);
-    
+
     if (!user) {
       res.status(404).json({
         success: false,
-        message: 'User not found'
+        message: "User not found",
       });
       return;
     }
@@ -68,32 +68,32 @@ router.get('/:id', async (req: Request, res: Response) => {
       rol: user.rol,
       cedula: user.cedula,
       created_at: user.created_at,
-      updated_at: user.updated_at
+      updated_at: user.updated_at,
     };
 
     res.json({
       success: true,
       data: userResponse,
-      message: 'User retrieved successfully'
+      message: "User retrieved successfully",
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Error retrieving user',
-      error: error instanceof Error ? error.message : 'Unknown error'
+      message: "Error retrieving user",
+      error: error instanceof Error ? error.message : "Unknown error",
     });
   }
 });
 
-router.post('/', async (req: Request, res: Response) => {
+router.post("/", async (req: Request, res: Response) => {
   try {
     const { error, value } = createUserSchema.validate(req.body);
-    
+
     if (error) {
       res.status(400).json({
         success: false,
-        message: 'Validation error',
-        error: error.details[0].message
+        message: "Validation error",
+        error: error.details[0].message,
       });
       return;
     }
@@ -102,7 +102,7 @@ router.post('/', async (req: Request, res: Response) => {
     if (existingUserByEmail) {
       res.status(409).json({
         success: false,
-        message: 'Email already exists'
+        message: "Email already exists",
       });
       return;
     }
@@ -111,13 +111,13 @@ router.post('/', async (req: Request, res: Response) => {
     if (existingUserByCedula) {
       res.status(409).json({
         success: false,
-        message: 'Cedula already exists'
+        message: "Cedula already exists",
       });
       return;
     }
 
     const user = await createUser(value);
-    
+
     const userResponse = {
       id: user.id,
       nombre: user.nombre,
@@ -125,42 +125,42 @@ router.post('/', async (req: Request, res: Response) => {
       rol: user.rol,
       cedula: user.cedula,
       created_at: user.created_at,
-      updated_at: user.updated_at
+      updated_at: user.updated_at,
     };
-    
+
     res.status(201).json({
       success: true,
       data: userResponse,
-      message: 'User created successfully'
+      message: "User created successfully",
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Error creating user',
-      error: error instanceof Error ? error.message : 'Unknown error'
+      message: "Error creating user",
+      error: error instanceof Error ? error.message : "Unknown error",
     });
   }
 });
 
-router.put('/:id', async (req: Request, res: Response) => {
+router.put("/:id", async (req: Request, res: Response) => {
   try {
     const id = parseInt(req.params.id);
-    
+
     if (isNaN(id)) {
       res.status(400).json({
         success: false,
-        message: 'Invalid user ID'
+        message: "Invalid user ID",
       });
       return;
     }
 
     const { error, value } = updateUserSchema.validate(req.body);
-    
+
     if (error) {
       res.status(400).json({
         success: false,
-        message: 'Validation error',
-        error: error.details[0].message
+        message: "Validation error",
+        error: error.details[0].message,
       });
       return;
     }
@@ -170,7 +170,7 @@ router.put('/:id', async (req: Request, res: Response) => {
       if (existingUser && existingUser.id !== id) {
         res.status(409).json({
           success: false,
-          message: 'Email already exists'
+          message: "Email already exists",
         });
         return;
       }
@@ -181,18 +181,18 @@ router.put('/:id', async (req: Request, res: Response) => {
       if (existingUser && existingUser.id !== id) {
         res.status(409).json({
           success: false,
-          message: 'Cedula already exists'
+          message: "Cedula already exists",
         });
         return;
       }
     }
 
     const user = await updateUser(id, value);
-    
+
     if (!user) {
       res.status(404).json({
         success: false,
-        message: 'User not found'
+        message: "User not found",
       });
       return;
     }
@@ -204,54 +204,54 @@ router.put('/:id', async (req: Request, res: Response) => {
       rol: user.rol,
       cedula: user.cedula,
       created_at: user.created_at,
-      updated_at: user.updated_at
+      updated_at: user.updated_at,
     };
 
     res.json({
       success: true,
       data: userResponse,
-      message: 'User updated successfully'
+      message: "User updated successfully",
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Error updating user',
-      error: error instanceof Error ? error.message : 'Unknown error'
+      message: "Error updating user",
+      error: error instanceof Error ? error.message : "Unknown error",
     });
   }
 });
 
-router.delete('/:id', async (req: Request, res: Response) => {
+router.delete("/:id", async (req: Request, res: Response) => {
   try {
     const id = parseInt(req.params.id);
-    
+
     if (isNaN(id)) {
       res.status(400).json({
         success: false,
-        message: 'Invalid user ID'
+        message: "Invalid user ID",
       });
       return;
     }
 
     const deleted = await deleteUser(id);
-    
+
     if (!deleted) {
       res.status(404).json({
         success: false,
-        message: 'User not found'
+        message: "User not found",
       });
       return;
     }
 
     res.json({
       success: true,
-      message: 'User deleted successfully'
+      message: "User deleted successfully",
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Error deleting user',
-      error: error instanceof Error ? error.message : 'Unknown error'
+      message: "Error deleting user",
+      error: error instanceof Error ? error.message : "Unknown error",
     });
   }
 });

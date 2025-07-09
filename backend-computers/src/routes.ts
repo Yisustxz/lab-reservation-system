@@ -66,13 +66,35 @@ router.put("/api/labs/:id", async (req, res) => {
 router.delete("/api/labs/:id", async (req, res) => {
   try {
     const id = parseInt(req.params.id);
-    const deleted = await labModel.delete(id);
-    if (!deleted) {
-      return res.status(404).json({ error: "Lab not found" });
+
+    if (isNaN(id)) {
+      res.status(400).json({
+        success: false,
+        message: "Invalid lab ID",
+      });
+      return;
     }
-    res.status(204).send();
+
+    const deleted = await labModel.delete(id);
+
+    if (!deleted) {
+      res.status(404).json({
+        success: false,
+        message: "Lab not found",
+      });
+      return;
+    }
+
+    res.json({
+      success: true,
+      message: "Lab deleted successfully",
+    });
   } catch (error) {
-    res.status(500).json({ error: "Error deleting lab" });
+    res.status(500).json({
+      success: false,
+      message: "Error deleting lab",
+      error: error instanceof Error ? error.message : "Unknown error",
+    });
   }
 });
 
@@ -142,13 +164,35 @@ router.put("/api/computers/:id", async (req, res) => {
 router.delete("/api/computers/:id", async (req, res) => {
   try {
     const id = parseInt(req.params.id);
-    const deleted = await computerModel.delete(id);
-    if (!deleted) {
-      return res.status(404).json({ error: "Computer not found" });
+
+    if (isNaN(id)) {
+      res.status(400).json({
+        success: false,
+        message: "Invalid computer ID",
+      });
+      return;
     }
-    res.status(204).send();
+
+    const deleted = await computerModel.delete(id);
+
+    if (!deleted) {
+      res.status(404).json({
+        success: false,
+        message: "Computer not found",
+      });
+      return;
+    }
+
+    res.json({
+      success: true,
+      message: "Computer deleted successfully",
+    });
   } catch (error) {
-    res.status(500).json({ error: "Error deleting computer" });
+    res.status(500).json({
+      success: false,
+      message: "Error deleting computer",
+      error: error instanceof Error ? error.message : "Unknown error",
+    });
   }
 });
 

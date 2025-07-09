@@ -38,7 +38,7 @@ export const createUserSchema = Joi.object({
 export const updateUserSchema = Joi.object({
   nombre: Joi.string().min(2).max(100).optional(),
   email: Joi.string().email().optional(),
-  password: Joi.string().min(6).optional(),
+  password: Joi.string().min(6).allow("").optional(),
   rol: Joi.string().valid("user", "administrador", "encargado").optional(),
   cedula: Joi.string().min(8).max(20).optional(),
 }).min(1);

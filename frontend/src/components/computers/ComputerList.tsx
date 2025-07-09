@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 import {
   createComputer,
   deleteComputer,
@@ -6,6 +7,7 @@ import {
   updateComputer,
 } from "../../api/computerService";
 import type { Computer } from "../../types/models";
+import { extractErrorMessage } from "../../utils/errorHandler";
 import ComputerForm from "./ComputerForm";
 import ComputerItem from "./ComputerItem";
 
@@ -29,6 +31,10 @@ export default function ComputerList() {
       try {
         const data = await fetchComputers();
         setComputers(data);
+      } catch (error) {
+        toast.error(
+          `Error al cargar computadoras: ${extractErrorMessage(error)}`
+        );
       } finally {
         setLoading(false);
       }
@@ -38,8 +44,15 @@ export default function ComputerList() {
 
   const handleDelete = async (id: number) => {
     if (window.confirm("¿Eliminar esta computadora?")) {
-      await deleteComputer(id);
-      setComputers(computers.filter(c => c.id !== id));
+      try {
+        await deleteComputer(id);
+        setComputers(computers.filter(c => c.id !== id));
+        toast.success("Computadora eliminada exitosamente");
+      } catch (error) {
+        toast.error(
+          `Error al eliminar computadora: ${extractErrorMessage(error)}`
+        );
+      }
     }
   };
 
@@ -61,19 +74,33 @@ export default function ComputerList() {
         <ComputerForm
           computer={editingComputer}
           onSubmit={async formData => {
-            if (editingComputer) {
-              const updated = await updateComputer(
-                editingComputer.id,
-                formData
+            try {
+              if (editingComputer) {
+                const updated = await updateComputer(
+                  editingComputer.id,
+                  formData
+                );
+                setComputers(
+                  computers.map(c =>
+                    c.id === editingComputer.id ? updated : c
+                  )
+                );
+                toast.success("Computadora actualizada exitosamente");
+              } else {
+                const newComputer = await createComputer(formData);
+                setComputers([...computers, newComputer]);
+                toast.success("Computadora creada exitosamente");
+              }
+              setShowForm(false);
+            } catch (error) {
+              toast.error(
+                `${
+                  editingComputer
+                    ? "Error al actualizar computadora"
+                    : "Error al crear computadora"
+                }: ${extractErrorMessage(error)}`
               );
-              setComputers(
-                computers.map(c => (c.id === editingComputer.id ? updated : c))
-              );
-            } else {
-              const newComputer = await createComputer(formData);
-              setComputers([...computers, newComputer]);
             }
-            setShowForm(false);
           }}
           onCancel={() => setShowForm(false)}
         />

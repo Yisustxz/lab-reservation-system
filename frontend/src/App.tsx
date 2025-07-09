@@ -1,3 +1,4 @@
+import { Toaster } from "react-hot-toast";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import ComputersPage from "./pages/ComputersPage";
@@ -24,6 +25,26 @@ export default function App() {
             <Route path="/users" element={<UsersPage />} />
           </Routes>
         </div>
+        <Toaster
+          position="top-right"
+          toastOptions={{
+            duration: 4000,
+            style: {
+              background: "#363636",
+              color: "#fff",
+            },
+            success: {
+              style: {
+                background: "#10b981",
+              },
+            },
+            error: {
+              style: {
+                background: "#ef4444",
+              },
+            },
+          }}
+        />
       </div>
     </BrowserRouter>
   );

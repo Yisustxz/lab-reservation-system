@@ -69,7 +69,7 @@ export const updateUser = async (
     values.push(userData.email);
   }
 
-  if (userData.password) {
+  if (userData.password && userData.password.trim() !== "") {
     const hashedPassword = await bcrypt.hash(userData.password, 10);
     fields.push(`password = $${paramCount++}`);
     values.push(hashedPassword);

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 import {
   createUser,
   deleteUser,
@@ -6,6 +7,7 @@ import {
   updateUser,
 } from "../../api/userService";
 import type { User } from "../../types/models";
+import { extractErrorMessage } from "../../utils/errorHandler";
 import UserForm from "./UserForm";
 import UserItem from "./UserItem";
 
@@ -23,6 +25,8 @@ export default function UserList() {
         const data = await fetchUsers();
         console.log("data-->", data);
         setUsers(data);
+      } catch (error) {
+        toast.error(`Error al cargar usuarios: ${extractErrorMessage(error)}`);
       } finally {
         setLoading(false);
       }
@@ -32,8 +36,13 @@ export default function UserList() {
 
   const handleDelete = async (id: number) => {
     if (window.confirm("¿Estás seguro de eliminar este usuario?")) {
-      await deleteUser(id);
-      setUsers(users.filter(user => user.id !== id));
+      try {
+        await deleteUser(id);
+        setUsers(users.filter(user => user.id !== id));
+        toast.success("Usuario eliminado exitosamente");
+      } catch (error) {
+        toast.error(`Error al eliminar usuario: ${extractErrorMessage(error)}`);
+      }
     }
   };
 
@@ -62,13 +71,21 @@ export default function UserList() {
                 setUsers(
                   users.map(u => (u.id === editingUser.id ? updatedUser : u))
                 );
+                toast.success("Usuario actualizado exitosamente");
               } else {
                 const newUser = await createUser(userData);
                 setUsers([...users, newUser]);
+                toast.success("Usuario creado exitosamente");
               }
               setShowForm(false);
             } catch (error) {
-              console.error("Error saving user:", error);
+              toast.error(
+                `${
+                  editingUser
+                    ? "Error al actualizar usuario"
+                    : "Error al crear usuario"
+                }: ${extractErrorMessage(error)}`
+              );
             }
           }}
           onCancel={() => setShowForm(false)}

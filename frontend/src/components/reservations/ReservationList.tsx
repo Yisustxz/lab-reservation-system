@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 import {
   createReservation,
   deleteReservation,
@@ -6,6 +7,7 @@ import {
   updateReservation,
 } from "../../api/reservationService";
 import type { Reservation } from "../../types/models";
+import { extractErrorMessage } from "../../utils/errorHandler";
 import ReservationForm from "./ReservationForm";
 import ReservationItem from "./ReservationItem";
 
@@ -43,6 +45,10 @@ export default function ReservationList() {
       try {
         const data = await fetchReservations();
         setReservations(data);
+      } catch (error) {
+        toast.error(
+          `Error al cargar reservaciones: ${extractErrorMessage(error)}`
+        );
       } finally {
         setLoading(false);
       }
@@ -52,8 +58,15 @@ export default function ReservationList() {
 
   const handleDelete = async (id: number) => {
     if (window.confirm("¿Eliminar esta reservación?")) {
-      await deleteReservation(id);
-      setReservations(reservations.filter(r => r.id !== id));
+      try {
+        await deleteReservation(id);
+        setReservations(reservations.filter(r => r.id !== id));
+        toast.success("Reservación eliminada exitosamente");
+      } catch (error) {
+        toast.error(
+          `Error al eliminar reservación: ${extractErrorMessage(error)}`
+        );
+      }
     }
   };
 
@@ -76,21 +89,33 @@ export default function ReservationList() {
         <ReservationForm
           reservation={editingReservation}
           onSubmit={async formData => {
-            if (editingReservation) {
-              const updated = await updateReservation(
-                editingReservation.id,
-                formData
+            try {
+              if (editingReservation) {
+                const updated = await updateReservation(
+                  editingReservation.id,
+                  formData
+                );
+                setReservations(
+                  reservations.map(r =>
+                    r.id === editingReservation.id ? updated : r
+                  )
+                );
+                toast.success("Reservación actualizada exitosamente");
+              } else {
+                const newReservation = await createReservation(formData);
+                setReservations([...reservations, newReservation]);
+                toast.success("Reservación creada exitosamente");
+              }
+              setShowForm(false);
+            } catch (error) {
+              toast.error(
+                `${
+                  editingReservation
+                    ? "Error al actualizar reservación"
+                    : "Error al crear reservación"
+                }: ${extractErrorMessage(error)}`
               );
-              setReservations(
-                reservations.map(r =>
-                  r.id === editingReservation.id ? updated : r
-                )
-              );
-            } else {
-              const newReservation = await createReservation(formData);
-              setReservations([...reservations, newReservation]);
             }
-            setShowForm(false);
           }}
           onCancel={() => setShowForm(false)}
         />
