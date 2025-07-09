@@ -34,9 +34,9 @@ export interface Reservation {
   fecha: string; // YYYY-MM-DD
   hora: string; // HH:MM
   duracion?: number;
-  estado?: "pendiente" | "confirmada" | "cancelada";
-  created_at?: Date;
-  updated_at?: Date;
+  estado?: "pendiente" | "confirmada" | "cancelada" | "completada";
+  created_at?: string;
+  updated_at?: string;
   computer?: Computer;
 }
 

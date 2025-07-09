@@ -39,7 +39,7 @@ export const createReservationSchema = Joi.object({
   hora: Joi.string()
     .pattern(/^\d{2}:\d{2}$/)
     .required(),
-  duracion: Joi.number().integer().min(1).max(8).required(),
+  duracion: Joi.number().integer().min(1).max(480).required(),
   estado: Joi.string()
     .valid("pendiente", "confirmada", "cancelada", "completada")
     .optional(),
@@ -54,7 +54,7 @@ export const updateReservationSchema = Joi.object({
   hora: Joi.string()
     .pattern(/^\d{2}:\d{2}$/)
     .optional(),
-  duracion: Joi.number().integer().min(1).max(8).optional(),
+  duracion: Joi.number().integer().min(1).max(480).optional(),
   estado: Joi.string()
     .valid("pendiente", "confirmada", "cancelada", "completada")
     .optional(),

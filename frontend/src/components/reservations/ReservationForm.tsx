@@ -13,6 +13,7 @@ const statusOptions = [
   { value: "pendiente", label: "Pendiente" },
   { value: "confirmada", label: "Confirmada" },
   { value: "cancelada", label: "Cancelada" },
+  { value: "completada", label: "Completada" },
 ];
 
 const durationOptions = [

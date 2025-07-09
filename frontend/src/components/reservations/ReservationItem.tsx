@@ -6,10 +6,14 @@ interface ReservationItemProps {
   onDelete: () => void;
 }
 
-const statusColors = {
+const statusColors: Record<
+  "pendiente" | "confirmada" | "cancelada" | "completada",
+  string
+> = {
   pendiente: "bg-yellow-100 text-yellow-800",
   confirmada: "bg-green-100 text-green-800",
   cancelada: "bg-red-100 text-red-800",
+  completada: "bg-blue-100 text-blue-800",
 };
 
 export default function ReservationItem({
