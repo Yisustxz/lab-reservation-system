@@ -20,10 +20,14 @@ export default function ReservationItem({
   const calculateEndTime = () => {
     const [hours, minutes] = reservation.hora.split(":").map(Number);
     const endTime = new Date();
-    endTime.setHours(hours + Math.floor(reservation.duracion / 60));
-    endTime.setMinutes(minutes + (reservation.duracion % 60));
+    const duracion = reservation.duracion || 60;
+    endTime.setHours(hours + Math.floor(duracion / 60));
+    endTime.setMinutes(minutes + (duracion % 60));
     return endTime.toTimeString().slice(0, 5);
   };
+
+  const estado = reservation.estado || "pendiente";
+  const duracion = reservation.duracion || 60;
 
   return (
     <div className="bg-white rounded-lg shadow p-4 hover:shadow-md transition-shadow">
@@ -38,16 +42,14 @@ export default function ReservationItem({
           </p>
           <p className="text-sm text-gray-500 mt-1">
             {reservation.fecha} | {reservation.hora} - {calculateEndTime()} (
-            {reservation.duracion} mins)
+            {duracion} mins)
           </p>
         </div>
         <div className="flex flex-col items-end">
           <span
-            className={`text-xs px-2 py-1 rounded-full mb-2 ${
-              statusColors[reservation.estado]
-            }`}
+            className={`text-xs px-2 py-1 rounded-full mb-2 ${statusColors[estado]}`}
           >
-            {reservation.estado.toUpperCase()}
+            {estado.toUpperCase()}
           </span>
           <div className="flex space-x-2">
             <button

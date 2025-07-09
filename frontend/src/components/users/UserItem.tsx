@@ -8,9 +8,9 @@ interface UserItemProps {
 
 export default function UserItem({ user, onEdit, onDelete }: UserItemProps) {
   const roleColors = {
-    admin: "bg-purple-100 text-purple-800",
-    docente: "bg-blue-100 text-blue-800",
-    estudiante: "bg-green-100 text-green-800",
+    user: "bg-green-100 text-green-800",
+    administrador: "bg-purple-100 text-purple-800",
+    encargado: "bg-blue-100 text-blue-800",
   };
 
   return (
