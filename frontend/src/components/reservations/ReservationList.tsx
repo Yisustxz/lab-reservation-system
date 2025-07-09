@@ -107,6 +107,7 @@ export default function ReservationList() {
                 toast.success("Reservación creada exitosamente");
               }
               setShowForm(false);
+              setEditingReservation(null);
             } catch (error) {
               toast.error(
                 `${
@@ -117,7 +118,10 @@ export default function ReservationList() {
               );
             }
           }}
-          onCancel={() => setShowForm(false)}
+          onCancel={() => {
+            setShowForm(false);
+            setEditingReservation(null);
+          }}
         />
       )}
 

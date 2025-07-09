@@ -21,6 +21,8 @@ const durationOptions = [
   { value: 60, label: "1 hora" },
   { value: 90, label: "1.5 horas" },
   { value: 120, label: "2 horas" },
+  { value: 180, label: "3 horas" },
+  { value: 240, label: "4 horas" },
 ];
 
 export default function ReservationForm({
@@ -33,7 +35,7 @@ export default function ReservationForm({
     computer_id: 0,
     fecha: "",
     hora: "",
-    duracion: 30,
+    duracion: 60,
     estado: "pendiente",
   });
 
@@ -49,6 +51,72 @@ export default function ReservationForm({
   };
   const [errors, setErrors] = useState<ReservationFormErrors>({});
 
+  const normalizeDate = (dateString: string): string => {
+    if (!dateString) return "";
+
+    // If it's already in YYYY-MM-DD format, return as is
+    if (/^\d{4}-\d{2}-\d{2}$/.test(dateString)) {
+      return dateString;
+    }
+
+    // Try to parse and convert to YYYY-MM-DD
+    try {
+      const date = new Date(dateString);
+      if (!isNaN(date.getTime())) {
+        return date.toISOString().split("T")[0];
+      }
+    } catch (error) {
+      console.error("Error parsing date:", error);
+    }
+
+    return "";
+  };
+
+  const normalizeTime = (timeString: string): string => {
+    if (!timeString) return "";
+
+    // If it's already in HH:MM format, return as is
+    if (/^\d{2}:\d{2}$/.test(timeString)) {
+      return timeString;
+    }
+
+    // Handle formats like "15:00:00", "15:00:00.000", "15:00:00.000Z"
+    if (timeString.includes(":")) {
+      const parts = timeString.split(":");
+      if (parts.length >= 2) {
+        const hours = parts[0].padStart(2, "0");
+        const minutes = parts[1].split(".")[0].padStart(2, "0"); // Remove seconds/milliseconds
+
+        // Validate that hours and minutes are valid
+        const h = parseInt(hours);
+        const m = parseInt(minutes);
+        if (h >= 0 && h <= 23 && m >= 0 && m <= 59) {
+          return `${hours}:${minutes}`;
+        }
+      }
+    }
+
+    // Handle single digit hours like "9:00" -> "09:00"
+    if (/^\d:\d{2}$/.test(timeString)) {
+      return `0${timeString}`;
+    }
+
+    // Try to parse as a time string with Date
+    try {
+      const date = new Date(`2000-01-01T${timeString}`);
+      if (!isNaN(date.getTime())) {
+        const hours = date.getHours().toString().padStart(2, "0");
+        const minutes = date.getMinutes().toString().padStart(2, "0");
+        return `${hours}:${minutes}`;
+      }
+    } catch (error) {
+      console.error("Error parsing time:", error);
+    }
+
+    console.warn("Could not normalize time:", timeString);
+    return timeString;
+  };
+
   useEffect(() => {
     const loadData = async () => {
       const usersData = await fetchUsers();
@@ -61,14 +129,36 @@ export default function ReservationForm({
     };
     loadData();
 
+    // Test normalizeTime function
+    console.log("Testing normalizeTime:");
+    console.log("15:00:00 ->", normalizeTime("15:00:00"));
+    console.log("15:00:00.000 ->", normalizeTime("15:00:00.000"));
+    console.log("15:00:00.000Z ->", normalizeTime("15:00:00.000Z"));
+    console.log("9:00 ->", normalizeTime("9:00"));
+    console.log("15:00 ->", normalizeTime("15:00"));
+  }, []);
+
+  useEffect(() => {
     if (reservation) {
+      console.log("Editing reservation:", reservation);
+      console.log("Original hora:", reservation.hora);
+      console.log("Normalized hora:", normalizeTime(reservation.hora));
       setFormData({
         user_id: reservation.user_id,
         computer_id: reservation.computer_id,
-        fecha: reservation.fecha,
-        hora: reservation.hora,
-        duracion: reservation.duracion,
-        estado: reservation.estado,
+        fecha: normalizeDate(reservation.fecha),
+        hora: normalizeTime(reservation.hora),
+        duracion: reservation.duracion || 60,
+        estado: reservation.estado || "pendiente",
+      });
+    } else {
+      setFormData({
+        user_id: 0,
+        computer_id: 0,
+        fecha: "",
+        hora: "",
+        duracion: 60,
+        estado: "pendiente",
       });
     }
   }, [reservation]);
@@ -96,6 +186,7 @@ export default function ReservationForm({
     setErrors(newErrors);
     if (Object.keys(newErrors).length > 0) return;
 
+    console.log("Submitting form data:", formData);
     onSubmit(formData);
   };
 

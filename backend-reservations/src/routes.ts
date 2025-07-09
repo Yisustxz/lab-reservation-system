@@ -125,7 +125,7 @@ router.post("/", async (req, res) => {
     res.status(201).json(reservation);
   } catch (error) {
     console.error("Error creating reservation:", error);
-    res.status(500).json({ error: "Error interno del servidor" });
+    res.status(500).json({ error: error || "Error interno del servidor" });
   }
 });
 

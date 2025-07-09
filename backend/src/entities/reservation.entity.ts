@@ -28,6 +28,12 @@ export class Reservation {
   @Column({ type: 'time' })
   hora: string;
 
+  @Column({ type: 'integer', default: 60 })
+  duracion: number;
+
+  @Column({ type: 'varchar', length: 20, default: 'pendiente' })
+  estado: string;
+
   @CreateDateColumn()
   created_at: Date;
 
