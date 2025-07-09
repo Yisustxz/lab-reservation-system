@@ -1,53 +1,60 @@
-import pool from './database';
-import { User, CreateUserRequest, UpdateUserRequest } from './types';
-import bcrypt from 'bcryptjs';
+import bcrypt from "bcryptjs";
+import pool from "./database";
+import { CreateUserRequest, UpdateUserRequest, User } from "./types";
 
 export const findAllUsers = async (): Promise<User[]> => {
-  const query = 'SELECT * FROM users WHERE rol = $1 ORDER BY created_at DESC';
-  const result = await pool.query(query, ['user']);
+  const query = "SELECT * FROM users ORDER BY created_at DESC";
+  const result = await pool.query(query);
   return result.rows;
 };
 
 export const findUserById = async (id: number): Promise<User | null> => {
-  const query = 'SELECT * FROM users WHERE id = $1 AND rol = $2';
-  const result = await pool.query(query, [id, 'user']);
+  const query = "SELECT * FROM users WHERE id = $1";
+  const result = await pool.query(query, [id]);
   return result.rows[0] || null;
 };
 
 export const findUserByEmail = async (email: string): Promise<User | null> => {
-  const query = 'SELECT * FROM users WHERE email = $1';
+  const query = "SELECT * FROM users WHERE email = $1";
   const result = await pool.query(query, [email]);
   return result.rows[0] || null;
 };
 
-export const findUserByCedula = async (cedula: string): Promise<User | null> => {
-  const query = 'SELECT * FROM users WHERE cedula = $1';
+export const findUserByCedula = async (
+  cedula: string
+): Promise<User | null> => {
+  const query = "SELECT * FROM users WHERE cedula = $1";
   const result = await pool.query(query, [cedula]);
   return result.rows[0] || null;
 };
 
-export const createUser = async (userData: CreateUserRequest): Promise<User> => {
+export const createUser = async (
+  userData: CreateUserRequest
+): Promise<User> => {
   const hashedPassword = await bcrypt.hash(userData.password, 10);
-  
+
   const query = `
     INSERT INTO users (nombre, email, password, rol, cedula, created_at, updated_at)
     VALUES ($1, $2, $3, $4, $5, NOW(), NOW())
     RETURNING *
   `;
-  
+
   const values = [
     userData.nombre,
     userData.email,
     hashedPassword,
-    'user',
-    userData.cedula
+    userData.rol || "user",
+    userData.cedula,
   ];
-  
+
   const result = await pool.query(query, values);
   return result.rows[0];
 };
 
-export const updateUser = async (id: number, userData: UpdateUserRequest): Promise<User | null> => {
+export const updateUser = async (
+  id: number,
+  userData: UpdateUserRequest
+): Promise<User | null> => {
   const fields = [];
   const values = [];
   let paramCount = 1;
@@ -68,6 +75,11 @@ export const updateUser = async (id: number, userData: UpdateUserRequest): Promi
     values.push(hashedPassword);
   }
 
+  if (userData.rol) {
+    fields.push(`rol = $${paramCount++}`);
+    values.push(userData.rol);
+  }
+
   if (userData.cedula) {
     fields.push(`cedula = $${paramCount++}`);
     values.push(userData.cedula);
@@ -82,8 +94,8 @@ export const updateUser = async (id: number, userData: UpdateUserRequest): Promi
 
   const query = `
     UPDATE users 
-    SET ${fields.join(', ')} 
-    WHERE id = $${paramCount} AND rol = 'user'
+    SET ${fields.join(", ")} 
+    WHERE id = $${paramCount}
     RETURNING *
   `;
 
@@ -92,7 +104,7 @@ export const updateUser = async (id: number, userData: UpdateUserRequest): Promi
 };
 
 export const deleteUser = async (id: number): Promise<boolean> => {
-  const query = 'DELETE FROM users WHERE id = $1 AND rol = $2';
-  const result = await pool.query(query, [id, 'user']);
+  const query = "DELETE FROM users WHERE id = $1";
+  const result = await pool.query(query, [id]);
   return (result.rowCount || 0) > 0;
 };

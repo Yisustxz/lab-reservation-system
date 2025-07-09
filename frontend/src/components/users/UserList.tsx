@@ -9,29 +9,7 @@ import type { User } from "../../types/models";
 import UserForm from "./UserForm";
 import UserItem from "./UserItem";
 
-const mockUsers: User[] = [
-  {
-    id: 1,
-    nombre: "María González",
-    email: "maria@universidad.edu",
-    cedula: "V-12345678",
-    rol: "admin",
-  },
-  {
-    id: 2,
-    nombre: "Prof. Carlos Rojas",
-    email: "crojas@universidad.edu",
-    cedula: "V-87654321",
-    rol: "docente",
-  },
-  {
-    id: 3,
-    nombre: "Estudiante Pedro Pérez",
-    email: "pperes@estudio.edu",
-    cedula: "E-11223344",
-    rol: "estudiante",
-  },
-];
+const mockUsers: User[] = [];
 
 export default function UserList() {
   const [users, setUsers] = useState<User[]>(mockUsers);
@@ -43,6 +21,7 @@ export default function UserList() {
     const loadUsers = async () => {
       try {
         const data = await fetchUsers();
+        console.log("data-->", data);
         setUsers(data);
       } finally {
         setLoading(false);

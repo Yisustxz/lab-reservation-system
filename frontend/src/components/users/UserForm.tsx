@@ -9,9 +9,9 @@ interface UserFormProps {
 }
 
 const roles = [
-  { value: "admin", label: "Administrador" },
-  { value: "docente", label: "Docente" },
-  { value: "estudiante", label: "Estudiante" },
+  { value: "user", label: "Usuario" },
+  { value: "administrador", label: "Administrador" },
+  { value: "encargado", label: "Encargado" },
 ];
 
 export default function UserForm({
@@ -24,7 +24,7 @@ export default function UserForm({
     nombre: "",
     email: "",
     cedula: "",
-    rol: "estudiante",
+    rol: "user",
     password: "",
   });
 
