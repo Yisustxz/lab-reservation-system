@@ -90,4 +90,4 @@ if %errorlevel% neq 0 (
 echo ✅ System restart completed successfully!
 echo 🌐 You can access the application at: http://localhost:30001
 
-pause 
+pause
